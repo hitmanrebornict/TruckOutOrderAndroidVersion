@@ -19,6 +19,7 @@ import java.sql.Statement;
 
 public class LoginPage extends AppCompatActivity {
 
+    static String userName;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -32,7 +33,7 @@ public class LoginPage extends AppCompatActivity {
         btnLogin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Connection connection = connectionClass();
+                Connection connection = SqlServerConnection.connectionClass();
                 try {
                     if (connection != null) {
                         String loginSelect = "Select username, password from login where username = '" + username.getText().toString() + "' and password = '" + password.getText().toString() + "'";
@@ -40,6 +41,7 @@ public class LoginPage extends AppCompatActivity {
                         ResultSet rt = st.executeQuery(loginSelect);
 
                         if(rt.next()){
+                            userName = username.getText().toString();
                             Toast.makeText(LoginPage.this,"Login Success",Toast.LENGTH_LONG).show();
                             startActivity(new Intent(LoginPage.this,SearchPage.class));
                         }
@@ -55,20 +57,20 @@ public class LoginPage extends AppCompatActivity {
     }
 
 
-    @SuppressLint("NewApi")
-    public Connection connectionClass() {
-        Connection con = null;
-        String ip = "10.10.12.1", port = "1433", username = "too", password = "admin", databasename = "TooSystem";
-        StrictMode.ThreadPolicy tp = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(tp);
-        try {
-            Class.forName("net.sourceforge.jtds.jdbc.Driver");
-            String connectionUrl = "jdbc:jtds:sqlserver://" + ip + ":" + port + ";databasename=" + databasename + ";User=" + username + ";password=" + password + ";";
-            con = DriverManager.getConnection(connectionUrl);
-
-        } catch (Exception exception) {
-            Log.e("Error", exception.getMessage());
-        }
-        return con;
-    }
+//    @SuppressLint("NewApi")
+//    public static Connection connectionClass() {
+//        Connection con = null;
+//        String ip = "10.10.12.1", port = "1433", username = "too", password = "admin", databasename = "TooSystem";
+//        StrictMode.ThreadPolicy tp = new StrictMode.ThreadPolicy.Builder().permitAll().build();
+//        StrictMode.setThreadPolicy(tp);
+//        try {
+//            Class.forName("net.sourceforge.jtds.jdbc.Driver");
+//            String connectionUrl = "jdbc:jtds:sqlserver://" + ip + ":" + port + ";databasename=" + databasename + ";User=" + username + ";password=" + password + ";";
+//            con = DriverManager.getConnection(connectionUrl);
+//
+//        } catch (Exception exception) {
+//            Log.e("Error", exception.getMessage());
+//        }
+//        return con;
+//    }
 }

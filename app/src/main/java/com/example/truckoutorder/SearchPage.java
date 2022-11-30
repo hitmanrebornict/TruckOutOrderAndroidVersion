@@ -19,8 +19,9 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
-public class SearchPage extends AppCompatActivity {
 
+public class SearchPage extends AppCompatActivity {
+    static int shippingID;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,17 +37,27 @@ public class SearchPage extends AppCompatActivity {
                 Connection connection = connectionClass();
                 try {
                     if (connection != null) {
-                        String loginSelect = "Select * from shipping where container_no = '" + etSearch.getText().toString() + "' and warehouse_post = 'YES'";
+                        String loginSelect = "Select * from shipping where container_no = '" + etSearch.getText().toString() + "' and warehouse_post = 'YES' and security_post is null";
                         Statement st = connection.createStatement();
                         ResultSet rt = st.executeQuery(loginSelect);
+//
 
                         if(rt.next()){
-                            String checkDriver = "Select driver_check from security where container_no = '" + etSearch.getText().toString() + "'";
+                            shippingID = rt.getInt("ID");
+
+                            lblSearch.setText(String.valueOf(shippingID));
+                            Toast.makeText(SearchPage.this,"Found",Toast.LENGTH_LONG).show();
+                            String checkDriver = "Select driver_check from security where Shipping_ID = '" + String.valueOf(shippingID) + "'";
                             Statement st1 = connection.createStatement();
                             ResultSet rt1 = st.executeQuery(checkDriver);
 
-                            Toast.makeText(SearchPage.this,"Found",Toast.LENGTH_LONG).show();
-//                            startActivity(new Intent(LoginPage.this,SearchPage.class));
+                            if(rt1.next()){
+                                startActivity(new Intent(SearchPage.this,ContainerCheck.class));
+                            }
+                            else{
+                                Toast.makeText(SearchPage.this,"Found",Toast.LENGTH_LONG).show();
+                                startActivity(new Intent(SearchPage.this,DriverCheck.class));
+                            }
                         }
                         else{
                             Toast.makeText(SearchPage.this,"Login Failed",Toast.LENGTH_LONG).show();
