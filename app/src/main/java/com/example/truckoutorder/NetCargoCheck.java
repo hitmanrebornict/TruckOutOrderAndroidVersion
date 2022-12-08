@@ -102,18 +102,18 @@ public class NetCargoCheck extends AppCompatActivity {
                                 checkCargoWeight = Boolean.TRUE;
                                 checkAllowToPost = Boolean.TRUE;
                             }
-                            String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
-                            String update = "Update Security set Update_Time = ?, Update_User = ?, Security_Check = ?, Cargo_Weight_Check = ?, Cargo_Weight_Check_Value = ?, Allow_To_Post = ? Where Shipping_ID = ?";
-                            PreparedStatement st2 = conn.prepareStatement(update);
-
-                            st2.setString(1,timeStamp);
-                            st2.setString(2,LoginPage.userName);
-                            st2.setString(3,"YES");
-                            st2.setBoolean(4,checkCargoWeight);
-                            st2.setInt(5, checkNetCargoWeight);
-                            st2.setBoolean(6,checkAllowToPost);
-                            st2.setString(7,SqlServerConnection.shippingID.toString());
-                            st2.executeUpdate();
+//                            String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
+//                            String update = "Update Security set Update_Time = ?, Update_User = ?, Security_Check = ?, Cargo_Weight_Check = ?, Cargo_Weight_Check_Value = ?, Allow_To_Post = ? Where Shipping_ID = ?";
+//                            PreparedStatement st2 = conn.prepareStatement(update);
+//
+//                            st2.setString(1,timeStamp);
+//                            st2.setString(2,LoginPage.userName);
+//                            st2.setString(3,"YES");
+//                            st2.setBoolean(4,checkCargoWeight);
+//                            st2.setInt(5, checkNetCargoWeight);
+//                            st2.setBoolean(6,checkAllowToPost);
+//                            st2.setString(7,SqlServerConnection.shippingID.toString());
+//                            st2.executeUpdate();
                             Toast.makeText(NetCargoCheck.this,"Temporary Seal No. Checking Failed",Toast.LENGTH_LONG).show();
                             startActivity(new Intent(NetCargoCheck.this, CapturePhoto.class));
                             finish();
