@@ -2,26 +2,23 @@ package com.example.truckoutorder;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.os.Bundle;
-import android.os.StrictMode;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
 
 
 public class SearchPage extends AppCompatActivity {
-    static int shippingID;
+
+    static boolean checkISO;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,28 +28,50 @@ public class SearchPage extends AppCompatActivity {
         Button btnSearch = (Button) findViewById(R.id.btnSearch);
         TextView etSearch = (TextView) findViewById(R.id.etContainerNo);
 
+
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Connection connection = connectionClass();
+//                TableLayout table = findViewById(R.id.tableSearch);
+                Connection connection = SqlServerConnection.connectionClass();
+//
                 try {
                     if (connection != null) {
-                        String loginSelect = "Select * from shipping where container_no = '" + etSearch.getText().toString() + "' and warehouse_post = 'YES' and security_post is null";
+                        String loginSelect = "Select id, Check_ISO_Tank from shipping where container_no = '" + etSearch.getText().toString() + "' and warehouse_post = 'YES' and security_post is null";
                         Statement st = connection.createStatement();
                         ResultSet rt = st.executeQuery(loginSelect);
-//
 
+
+//                        ArrayList<ArrayList<String>> shippingList = new ArrayList<ArrayList<String>>();
+//                        int i = 0;
+//                        while(rt.next()){
+//                            String id = rt.getString("id");
+//                            String container = rt.getString("Container_No");
+//                            String invoice = rt.getString("Invoice");
+//                            shippingList.add(new ArrayList<String>());
+//                            shippingList.get(i).add(id);
+//                            shippingList.get(i).add(container);
+//                            shippingList.get(i).add(invoice);
+//                            i++;
                         if(rt.next()){
-                            shippingID = rt.getInt("ID");
-
-                            lblSearch.setText(String.valueOf(shippingID));
+                            checkISO = rt.getBoolean("Check_ISO_Tank");
+                            SqlServerConnection.shippingID = rt.getInt("id");
+                            lblSearch.setText(String.valueOf(SqlServerConnection.shippingID));
                             Toast.makeText(SearchPage.this,"Found",Toast.LENGTH_LONG).show();
-                            String checkDriver = "Select driver_check from security where Shipping_ID = '" + String.valueOf(shippingID) + "'";
+                            String checkDriver = "Select driver_check from security where Shipping_ID = '" + SqlServerConnection.shippingID + "'";
                             Statement st1 = connection.createStatement();
                             ResultSet rt1 = st.executeQuery(checkDriver);
 
                             if(rt1.next()){
-                                startActivity(new Intent(SearchPage.this,ContainerCheck.class));
+                                startActivity(new Intent(SearchPage.this, NetCargoCheck.class));
+                                if(checkISO){
+                                    Toast.makeText(SearchPage.this,"Found",Toast.LENGTH_LONG).show();
+                                    startActivity(new Intent(SearchPage.this,ISOTankCheck.class));
+                                }
+                                else{
+                                    Toast.makeText(SearchPage.this,"Found",Toast.LENGTH_LONG).show();
+                                    startActivity(new Intent(SearchPage.this,NetCargoCheck.class));
+                                }
                             }
                             else{
                                 Toast.makeText(SearchPage.this,"Found",Toast.LENGTH_LONG).show();
@@ -60,8 +79,28 @@ public class SearchPage extends AppCompatActivity {
                             }
                         }
                         else{
-                            Toast.makeText(SearchPage.this,"Login Failed",Toast.LENGTH_LONG).show();
+                            Toast.makeText(SearchPage.this,"Not Found",Toast.LENGTH_LONG).show();
                         }
+
+//                        System.out.println(shippingList.size());
+//                        for(int j = 0; j < shippingList.size();j++){
+//
+//
+//                            TableRow row = new TableRow(SearchPage.this);
+//                            for(int k = 0; k< shippingList.get(j).size();k++){
+//
+//                                TextView list = new TextView(SearchPage.this);
+//                                String listContent = shippingList.get(j).get(k);
+//                                list.setText(listContent + "     ");
+//                                row.addView(list);
+//                                row.setLayoutParams(new TableRow.LayoutParams(TableRow.LayoutParams.FILL_PARENT, TableRow.LayoutParams.MATCH_PARENT
+//                                ));
+//
+//
+//                            }
+//                            table.addView(row);
+//                        }
+
                     }
                 } catch (Exception exception) {
                     Log.e("Error",exception.getMessage());
@@ -69,21 +108,5 @@ public class SearchPage extends AppCompatActivity {
             }
         });
 
-    }
-    @SuppressLint("NewApi")
-    public Connection connectionClass() {
-        Connection con = null;
-        String ip = "10.10.12.1", port = "1433", username = "too", password = "admin", databasename = "TooSystem";
-        StrictMode.ThreadPolicy tp = new StrictMode.ThreadPolicy.Builder().permitAll().build();
-        StrictMode.setThreadPolicy(tp);
-        try {
-            Class.forName("net.sourceforge.jtds.jdbc.Driver");
-            String connectionUrl = "jdbc:jtds:sqlserver://" + ip + ":" + port + ";databasename=" + databasename + ";User=" + username + ";password=" + password + ";";
-            con = DriverManager.getConnection(connectionUrl);
-
-        } catch (Exception exception) {
-            Log.e("Error", exception.getMessage());
-        }
-        return con;
     }
 }

@@ -8,10 +8,13 @@ import java.sql.Connection;
 import java.sql.DriverManager;
 
 public class SqlServerConnection {
+
+    public static Integer shippingID;
+
     @SuppressLint("NewApi")
     public static Connection connectionClass() {
         Connection con = null;
-        String ip = "10.10.12.1", port = "1433", username = "too", password = "admin", databasename = "TooSystem";
+        String ip = "10.10.12.1", port = "1433", username = "too", password = "admin", databasename = "Too";
         StrictMode.ThreadPolicy tp = new StrictMode.ThreadPolicy.Builder().permitAll().build();
         StrictMode.setThreadPolicy(tp);
         try {

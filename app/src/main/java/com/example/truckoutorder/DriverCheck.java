@@ -2,9 +2,7 @@ package com.example.truckoutorder;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.content.ContentValues;
 import android.content.Intent;
-import android.os.Binder;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -14,21 +12,13 @@ import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import org.w3c.dom.Text;
-
-import java.net.IDN;
 import java.sql.Connection;
-import java.sql.Driver;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
-import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
-
-import javax.xml.transform.Result;
 
 public class DriverCheck extends AppCompatActivity {
 
@@ -45,6 +35,8 @@ public class DriverCheck extends AppCompatActivity {
         Spinner spinnerPMCode = findViewById(R.id.spinnerPMCode);
         Spinner spinnerRegistrationPlate = findViewById(R.id.spinnerRegistratoinPlate);
         Connection connection = SqlServerConnection.connectionClass();
+
+        lblFullName.setText(String.valueOf(SqlServerConnection.shippingID));
         try {
             if (connection != null) {
                 String DriverSelect = "SELECT Full_Name, PM_Code,PM_Registration_Plate from Driver_Info ";
@@ -92,14 +84,14 @@ public class DriverCheck extends AppCompatActivity {
 //                            Date date = new Date();
                             String timeStamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
 
-                            String update = "Insert Into Security (Shipping_ID,Driver_Full_Name,PM_CODE,PM_REGISTRATION_PLATE,DRIVER_CHECK,Update_Time,Update_User) values('"+ SearchPage.shippingID +"','"+ spinnerFullName.getSelectedItem().toString()+"','"+spinnerPMCode.getSelectedItem().toString()+"','"+spinnerRegistrationPlate.getSelectedItem().toString()+"','YES', ? ,'"+LoginPage.userName.toString()+"')";
+                            String update = "Insert Into Security (Shipping_ID,Driver_Full_Name,PM_CODE,PM_REGISTRATION_PLATE,DRIVER_CHECK,Update_Time,Update_User) values('"+ SqlServerConnection.shippingID +"','"+ spinnerFullName.getSelectedItem().toString()+"','"+spinnerPMCode.getSelectedItem().toString()+"','"+spinnerRegistrationPlate.getSelectedItem().toString()+"','YES', ? ,'"+LoginPage.userName.toString()+"')";
                             PreparedStatement st2 = connection.prepareStatement(update);
                             st2.setString(1,timeStamp);
                             st2.executeUpdate();
 
 
                                 Toast.makeText(DriverCheck.this,"Update Complete",Toast.LENGTH_LONG).show();
-                                startActivity(new Intent(DriverCheck.this,ContainerCheck.class));
+                                startActivity(new Intent(DriverCheck.this, NetCargoCheck.class));
 
                         }
                         else{
