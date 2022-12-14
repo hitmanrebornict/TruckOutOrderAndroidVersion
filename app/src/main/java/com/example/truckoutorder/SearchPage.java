@@ -28,7 +28,7 @@ public class SearchPage extends AppCompatActivity {
         Button btnSearch = (Button) findViewById(R.id.btnSearch);
         TextView etSearch = (TextView) findViewById(R.id.etContainerNo);
 
-
+        lblSearch.setInputType(4096);
         btnSearch.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -37,7 +37,7 @@ public class SearchPage extends AppCompatActivity {
 //
                 try {
                     if (connection != null) {
-                        String loginSelect = "Select id, Check_ISO_Tank from shipping where container_no = '" + etSearch.getText().toString() + "' and warehouse_post = 'YES' and security_post is null";
+                        String loginSelect = "Select id, Check_ISO_Tank from shipping where container_no = '" + etSearch.getText().toString() + "' and security_post is null";
                         Statement st = connection.createStatement();
                         ResultSet rt = st.executeQuery(loginSelect);
 
@@ -56,22 +56,22 @@ public class SearchPage extends AppCompatActivity {
                         if(rt.next()){
                             checkISO = rt.getBoolean("Check_ISO_Tank");
                             SqlServerConnection.shippingID = rt.getInt("id");
-                            lblSearch.setText(String.valueOf(SqlServerConnection.shippingID));
-                            Toast.makeText(SearchPage.this,"Found",Toast.LENGTH_LONG).show();
-                            String checkDriver = "Select driver_check from security where Shipping_ID = '" + SqlServerConnection.shippingID + "'";
+//                            lblSearch.setText(String.valueOf(SqlServerConnection.shippingID));
+                            String checkDriver = "Select driver_check,Security_Check from security where Shipping_ID = '" + SqlServerConnection.shippingID + "'";
                             Statement st1 = connection.createStatement();
                             ResultSet rt1 = st.executeQuery(checkDriver);
 
+
                             if(rt1.next()){
-                                startActivity(new Intent(SearchPage.this, NetCargoCheck.class));
-                                if(checkISO){
-                                    Toast.makeText(SearchPage.this,"Found",Toast.LENGTH_LONG).show();
-                                    startActivity(new Intent(SearchPage.this,ISOTankCheck.class));
-                                }
-                                else{
-                                    Toast.makeText(SearchPage.this,"Found",Toast.LENGTH_LONG).show();
+                                Boolean Security_Check = rt1.getBoolean("Security_Check");
+                                Boolean driver_Check = rt1.getBoolean("driver_check");
+                                Toast.makeText(SearchPage.this,"Found",Toast.LENGTH_LONG).show();
+//                                if((driver_Check == true) && (Security_Check == true)){
+//                                    startActivity(new Intent(SearchPage.this,PostPage.class));
+//                                }
+//                                else{
                                     startActivity(new Intent(SearchPage.this,NetCargoCheck.class));
-                                }
+//                                }
                             }
                             else{
                                 Toast.makeText(SearchPage.this,"Found",Toast.LENGTH_LONG).show();

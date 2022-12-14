@@ -20,6 +20,7 @@ import java.sql.Statement;
 public class LoginPage extends AppCompatActivity {
 
     static String userName;
+    private Boolean validationCheck;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -36,14 +37,21 @@ public class LoginPage extends AppCompatActivity {
                 Connection connection = SqlServerConnection.connectionClass();
                 try {
                     if (connection != null) {
-                        String loginSelect = "Select username, password from login where username = '" + username.getText().toString() + "' and password = '" + password.getText().toString() + "'";
+                        String loginSelect = "Select username, password, validationCheck from login where username = '" + username.getText().toString() + "' and password = '" + password.getText().toString() + "'";
                         Statement st = connection.createStatement();
                         ResultSet rt = st.executeQuery(loginSelect);
 
                         if(rt.next()){
                             userName = username.getText().toString();
-                            Toast.makeText(LoginPage.this,"Login Success",Toast.LENGTH_LONG).show();
-                            startActivity(new Intent(LoginPage.this,SearchPage.class));
+                            validationCheck = rt.getBoolean("validationCheck");
+                            if(validationCheck){
+                                Toast.makeText(LoginPage.this,"Login Success",Toast.LENGTH_LONG).show();
+                                startActivity(new Intent(LoginPage.this,SearchPage.class));
+                            }
+                            else{
+                                Toast.makeText(LoginPage.this,"This User Is Disabled",Toast.LENGTH_LONG).show();
+                            }
+
                         }
                         else{
                             Toast.makeText(LoginPage.this,"Login Failed",Toast.LENGTH_LONG).show();
