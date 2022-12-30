@@ -31,7 +31,8 @@ import java.text.ParseException;
 public class NetCargoCheck extends AppCompatActivity{
 
     private Boolean checkCargoWeight, checkAllowToPost, checkSecurityCheck;
-    private Integer checkNetCargoWeight,netCargoWeight, checkISOTankWeight;
+    private Integer checkNetCargoWeight,netCargoWeight;
+            private double checkISOTankWeight;
     private String containerNo,EsSealNo,LinerSealNo,InternalSealNo,TemporarySealNo;
     private double ISOWeightLower,ISOWeightUpper;
     private final String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
@@ -39,7 +40,7 @@ public class NetCargoCheck extends AppCompatActivity{
     private final SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
     private String ISOTruckOutDate;
 
-    Connection conn;
+    Connection conn = SqlServerConnection.connectionClass();
 
     public int compareDate(String a, String b) throws ParseException {
         Date firstDate = format.parse(a);
@@ -52,7 +53,8 @@ public class NetCargoCheck extends AppCompatActivity{
         if(a == null) return 0;
 
         if(a.trim().isEmpty()) return 1;
-        else return -1;
+
+        return -1;
     }
 
     @Override
@@ -71,6 +73,9 @@ public class NetCargoCheck extends AppCompatActivity{
         Button btnNext = findViewById(R.id.btnNextPage);
         TextView lblSecurityCheck = findViewById(R.id.securityCheckStatus);
         TextView lblPostCheck = findViewById(R.id.allowToPostStatus);
+        TextView lblTruckOutNumber = findViewById(R.id.tvTruckOutOrderNumber);
+
+        lblTruckOutNumber.setText("Truck Out Order Number: " + SqlServerConnection.shippingID );
 
         tbContainerNo.setInputType(4096);
         tbEsSealNo.setInputType(4096);
@@ -81,7 +86,7 @@ public class NetCargoCheck extends AppCompatActivity{
 
         try {
             conn = SqlServerConnection.connectionClass();
-            String securityCheck = "SELECT CONTAINER_NO, Warehouse.ES_SEAL_NO as ES_SEAL_NO, LINER_SEA_NO, INTERNAL_SEAL_NO, TEMPORARY_SEAL_NO, Net_Cargo_Weight,ISO_Truck_Out_Date, ISO_Tank_Weight_Lower, ISO_Tank_Weight_Upper, Security_Check, Allow_To_Post " +
+            String securityCheck = "SELECT CONTAINER_NO, Warehouse.ES_SEAL_NO as ES_SEAL_NO, LINER_SEA_NO, INTERNAL_SEAL_NO, TEMPORARY_SEAL_NO, Net_Cargo_Weight,ISO_Truck_Out_Date, ISO_Tank_Weight_Lower, ISO_Tank_Weight_Upper, Security_Check, Allow_To_Post, Security_Check_ISO_Tank_Weight, Cargo_Weight_Check_Value " +
                     "FROM Shipping left join Warehouse " +
                     "ON shipping.id = warehouse.shipping_id " +
                     "left join Security " +
@@ -99,50 +104,73 @@ public class NetCargoCheck extends AppCompatActivity{
                 netCargoWeight = rt.getInt("Net_Cargo_Weight");
                 ISOTruckOutDate = rt.getString("ISO_Truck_Out_Date");
                 ISOWeightLower = rt.getDouble("ISO_Tank_Weight_Lower");
-                ISOWeightLower = rt.getDouble("ISO_Tank_Weight_Upper");
+                ISOWeightUpper = rt.getDouble("ISO_Tank_Weight_Upper");
                 checkAllowToPost = rt.getBoolean("Allow_To_Post");
                 checkSecurityCheck = rt.getBoolean("Security_Check");
+                Double securityCheckISOTankWeight = rt.getDouble("Security_Check_ISO_Tank_Weight");
+                Integer cargoWeightCheckValue = rt.getInt("Cargo_Weight_Check_Value");
 
                 if(checkAllowToPost) lblPostCheck.setText("This Number is Allowed To Be Posted");
-                else if(checkAllowToPost == null) lblPostCheck.setText("This Number Is Not Yet Checked");
                 else if(!checkAllowToPost) lblPostCheck.setText("This Number is Not Allow To Post");
 
                 if(checkSecurityCheck) lblSecurityCheck.setText("This Number Was Checked");
-                else if(checkAllowToPost == null || !checkAllowToPost) lblSecurityCheck.setText("This Number Is Not Yet Checked");
+                else lblSecurityCheck.setText("This Number Is Not Yet Checked");
 
                 if(SearchPage.checkISO){
-                    Log.i("This is ISO","ISO");
-                    tbEsSealNo.setEnabled(false);
-                    tbEsSealNo.setHint("NULL");
-                    tbLinerSealNo.setEnabled(false);
-                    tbLinerSealNo.setHint("NULL");
-                    tbTempSealNo.setEnabled(false);
-                    tbTempSealNo.setHint("NULL");
-                    tbNetCargoWeight.setHint("NULL");
-                    tbNetCargoWeight.setEnabled(false);
+                    if(checkSecurityCheck){
+                        tbContainerNo.setText(containerNo);
+                        tbInternalSealNo.setText(InternalSealNo);
+                        tbISOTankWeight.setText(Double.toString(securityCheckISOTankWeight));
+                    }
+                    else{
+                        Log.i("This is ISO","ISO");
+                        tbEsSealNo.setEnabled(false);
+                        tbEsSealNo.setHint("NULL");
+                        tbLinerSealNo.setEnabled(false);
+                        tbLinerSealNo.setHint("NULL");
+                        tbTempSealNo.setEnabled(false);
+                        tbTempSealNo.setHint("NULL");
+                        tbNetCargoWeight.setHint("NULL");
+                        tbNetCargoWeight.setEnabled(false);
+                    }
+
                 }
                 else{
                     Log.i("This is not ISO","ISO");
-                    if (containerNo.trim().isEmpty()){
+                    if(checkSecurityCheck){
+                        tbContainerNo.setText(containerNo);
+                        tbInternalSealNo.setText(InternalSealNo);
+                        tbEsSealNo.setText(EsSealNo);
+                        tbTempSealNo.setText(TemporarySealNo);
+                        tbLinerSealNo.setText(LinerSealNo);
+                        tbNetCargoWeight.setText(Integer.toString(cargoWeightCheckValue));
+//
+                    }
+                    if (isNullEmpty(containerNo) == 0 || isNullEmpty(containerNo) == 1 ){
                         tbContainerNo.setEnabled(false);
                         tbContainerNo.setHint("NULL");
                     }
-                    if (EsSealNo.trim().isEmpty()){
+                    if (isNullEmpty(EsSealNo) == 0 || isNullEmpty(EsSealNo) == 1){
                         tbEsSealNo.setEnabled(false);
                         tbEsSealNo.setHint("NULL");
                     }
-                    if (InternalSealNo.trim().isEmpty()){
+                    if (isNullEmpty(InternalSealNo) == 0 || isNullEmpty(InternalSealNo) == 1){
                         tbInternalSealNo.setEnabled(false);
                         tbInternalSealNo.setHint("NULL");
                     }
-                    if (TemporarySealNo.trim().isEmpty()){
+                    if (isNullEmpty(TemporarySealNo) == 0 || isNullEmpty(TemporarySealNo) == 1){
                         tbTempSealNo.setEnabled(false);
                         tbTempSealNo.setHint("NULL");
                     }
-                    if (LinerSealNo.trim().isEmpty()){
+                    if ( isNullEmpty(LinerSealNo) == 0 || isNullEmpty(LinerSealNo) == 1){
                         tbLinerSealNo.setEnabled(false);
                         tbLinerSealNo.setHint("NULL");
                     }
+
+                    tbISOTankWeight.setHint("NULL");
+                    tbISOTankWeight.setEnabled(false);
+
+
 
                 }
             }
@@ -152,12 +180,13 @@ public class NetCargoCheck extends AppCompatActivity{
         }
 
         btnNext.setOnClickListener(view -> {
-            startActivity(new Intent(NetCargoCheck.this, CapturePhoto.class));
+            if(checkSecurityCheck) startActivity(new Intent(NetCargoCheck.this, CapturePhoto.class));
+            else Toast.makeText(NetCargoCheck.this,"Please Check Before Proceed To Next Page",Toast.LENGTH_LONG).show();
         });
 
 
         btnCheck.setOnClickListener(view -> {
-            conn = SqlServerConnection.connectionClass();
+
             String checkContainerNo = tbContainerNo.getText().toString();
             String checkEsSealNo = tbEsSealNo.getText().toString();
             String checkLinerSealNo = tbLinerSealNo.getText().toString();
@@ -168,7 +197,7 @@ public class NetCargoCheck extends AppCompatActivity{
             if(SearchPage.checkISO){
                 try {
 //                if (isNullEmpty(tbISOTankWeight.getText().toString()) == -1)
-                    checkISOTankWeight = Integer.parseInt(tbISOTankWeight.getText().toString());
+                    checkISOTankWeight = Double.parseDouble(tbISOTankWeight.getText().toString());
                 } catch (Exception exception) {
                     Log.e("Error",exception.getMessage());
                     Toast.makeText(NetCargoCheck.this,"Please Check ISO Tank Weight Field",Toast.LENGTH_LONG).show();
@@ -234,14 +263,14 @@ public class NetCargoCheck extends AppCompatActivity{
                                 st.setString(2,LoginPage.userName);
                                 st.setBoolean(3,true);
                                 st.setBoolean(4,checkAllowToPost);
-                                st.setInt(5,checkISOTankWeight);
+                                st.setDouble(5,checkISOTankWeight);
                                 st.setString(6,timestamp);
                                 st.setInt(7,SqlServerConnection.shippingID);
 
                                 st.executeUpdate();
 
-                            } catch (ParseException e) {
-                                e.printStackTrace();
+//                            } catch (ParseException e) {
+//                                e.printStackTrace();
                             } catch (SQLException e) {
                                 e.printStackTrace();
                             }
