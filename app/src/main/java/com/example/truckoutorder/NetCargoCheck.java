@@ -32,7 +32,7 @@ public class NetCargoCheck extends AppCompatActivity{
 
     private Boolean checkCargoWeight, checkAllowToPost, checkSecurityCheck;
     private Integer checkNetCargoWeight,netCargoWeight;
-            private double checkISOTankWeight;
+    private double checkISOTankWeight;
     private String containerNo,EsSealNo,LinerSealNo,InternalSealNo,TemporarySealNo;
     private double ISOWeightLower,ISOWeightUpper;
     private final String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss").format(Calendar.getInstance().getTime());
@@ -204,12 +204,12 @@ public class NetCargoCheck extends AppCompatActivity{
                 }
             }
             else{
-                try {
-//                checkNetCargoWeight = Integer.parseInt(tbNetCargoWeight.getText().toString());
-                } catch (Exception exception) {
-                    Log.e("Error",exception.getMessage());
-                    Toast.makeText(NetCargoCheck.this,"Please Check Net Cargo Tank Weight Field",Toast.LENGTH_LONG).show();
-                }
+//                try {
+//                } catch (Exception exception) {
+//                    Log.e("Error",exception.getMessage());
+//                    Toast.makeText(NetCargoCheck.this,"Please Check Net Cargo Tank Weight Field",Toast.LENGTH_LONG).show();
+//                }
+                checkNetCargoWeight = Integer.parseInt(tbNetCargoWeight.getText().toString());
             }
 
 

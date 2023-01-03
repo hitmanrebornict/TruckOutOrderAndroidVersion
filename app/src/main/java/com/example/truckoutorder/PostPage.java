@@ -48,6 +48,7 @@ public class PostPage extends AppCompatActivity {
                     lblCondition.setText("Inform Shipping Admin");
                 }else if(!(SearchPage.checkISO) && (allowToPost)){
                     lblAllowToPost.setText("This Number Is Allow To Post");
+                    lblCondition.setVisibility(View.INVISIBLE);
                 }else if(!(SearchPage.checkISO) && !(allowToPost)){
                     lblAllowToPost.setText("This Number Is Not Allow To Post");
                     lblCondition.setText("Inform Warehouse Admin");

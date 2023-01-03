@@ -19,6 +19,7 @@ import java.sql.Statement;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collections;
 
 public class DriverCheck extends AppCompatActivity {
 
@@ -55,6 +56,9 @@ public class DriverCheck extends AppCompatActivity {
                     PMCode.add(code);
                     RegistrationPlate.add(plate);
                 }
+                Collections.shuffle(fullName);
+                Collections.shuffle(PMCode);
+                Collections.shuffle(RegistrationPlate);
 
                 ArrayAdapter nameForSpinner = new ArrayAdapter(this, android.R.layout.simple_list_item_1,fullName);
                 ArrayAdapter codeForSpinner = new ArrayAdapter(this, android.R.layout.simple_list_item_1,PMCode);
